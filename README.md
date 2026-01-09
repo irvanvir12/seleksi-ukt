@@ -1,7 +1,7 @@
 
-  # seleksi-ukt
+  # seleksi-ukt (Copy)
 
-  This is a code bundle for seleksi-ukt. The original project is available at https://www.figma.com/design/29GADHfl0YJw0EFMRsBR09/seleksi-ukt.
+  This is a code bundle for seleksi-ukt (Copy). The original project is available at https://www.figma.com/design/nx84tuY7R2UMAhXMsTJjFc/seleksi-ukt--Copy-.
 
   ## Running the code
 
