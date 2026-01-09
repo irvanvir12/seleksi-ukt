@@ -11,8 +11,8 @@ interface LoginProps {
 
 // Dummy credentials
 const DUMMY_USERS = [
-  { username: "admin", password: "admin123" },
-  { username: "staff", password: "staff123" },
+  { username: "admin", password: "admin" },
+  { username: "staff", password: "staff" },
 ];
 
 export function Login({ onLogin }: LoginProps) {
@@ -21,7 +21,7 @@ export function Login({ onLogin }: LoginProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const user = DUMMY_USERS.find(
       (u) => u.username === username && u.password === password
     );
@@ -69,8 +69,8 @@ export function Login({ onLogin }: LoginProps) {
             </Button>
             <div className="text-sm text-muted-foreground text-center mt-4">
               <p>Demo credentials:</p>
-              <p>Username: admin | Password: admin123</p>
-              <p>Username: staff | Password: staff123</p>
+              <p>Username: admin | Password: admin</p>
+              <p>Username: staff | Password: staff</p>
             </div>
           </form>
         </CardContent>
