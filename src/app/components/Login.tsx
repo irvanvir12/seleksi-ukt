@@ -35,7 +35,7 @@ export function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8" style={{ background: 'rgb(6 78 59)' }}>
+    <div className="min-h-screen flex items-center justify-center p-8 bg-white">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Login Sistem UKT</CardTitle>

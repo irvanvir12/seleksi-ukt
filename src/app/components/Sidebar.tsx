@@ -16,10 +16,10 @@ export function Sidebar({ currentPage, onNavigate, onLogout, username }: Sidebar
   ];
 
   return (
-    <div className="w-64 bg-white h-screen sticky top-0 flex flex-col">
-      <div className="p-6 border-b">
+    <div className="w-64 bg-gradient-to-b from-blue-600 to-blue-700 h-screen sticky top-0 flex flex-col text-white">
+      <div className="p-6 border-b border-blue-500">
         <h2 className="font-semibold text-lg">Sistem UKT</h2>
-        <p className="text-sm text-muted-foreground">Welcome, {username}</p>
+        <p className="text-sm text-blue-100">Welcome, {username}</p>
       </div>
       
       <nav className="flex-1 p-4 space-y-2">
@@ -28,8 +28,12 @@ export function Sidebar({ currentPage, onNavigate, onLogout, username }: Sidebar
           return (
             <Button
               key={item.id}
-              variant={currentPage === item.id ? "default" : "ghost"}
-              className="w-full justify-start"
+              variant={currentPage === item.id ? "secondary" : "ghost"}
+              className={`w-full justify-start ${
+                currentPage === item.id 
+                  ? "bg-white text-blue-700 hover:bg-white/90" 
+                  : "text-white hover:bg-blue-500/50"
+              }`}
               onClick={() => onNavigate(item.id)}
             >
               <Icon className="mr-2 h-4 w-4" />
@@ -39,10 +43,10 @@ export function Sidebar({ currentPage, onNavigate, onLogout, username }: Sidebar
         })}
       </nav>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-blue-500">
         <Button
           variant="ghost"
-          className="w-full justify-start text-destructive hover:text-destructive"
+          className="w-full justify-start text-white hover:text-white hover:bg-blue-500/50"
           onClick={onLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />

@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Users, GraduationCap, Building2, DollarSign } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Sector } from "recharts";
+import { useState } from "react";
 
 interface BerandaProps {
   username: string;
@@ -46,7 +48,43 @@ const statistics = {
   },
 };
 
+const COLORS = {
+  tahun: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd'],
+  jalur: ['#059669', '#10b981', '#34d399', '#6ee7b7'],
+  jurusan: ['#d97706', '#f59e0b', '#fbbf24', '#fcd34d', '#fde68a'],
+  prodi: ['#dc2626', '#ef4444', '#f87171', '#fca5a5', '#fb923c', '#f97316', '#fb923c', '#fdba74', '#fed7aa', '#fde047'],
+  ukt: ['#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe'],
+};
+
+// Custom label component for pie chart
+const renderActiveShape = (props: any) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+  
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 10}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    </g>
+  );
+};
+
 export function Beranda({ username }: BerandaProps) {
+  const [activeTahun, setActiveTahun] = useState<number | undefined>(undefined);
+  const [activeJalur, setActiveJalur] = useState<number | undefined>(undefined);
+  const [activeUKT, setActiveUKT] = useState<number | undefined>(undefined);
+
+  // Transform data for pie charts
+  const tahunData = Object.entries(statistics.perTahun).map(([name, value]) => ({ name, value }));
+  const jalurData = Object.entries(statistics.perJalurMasuk).map(([name, value]) => ({ name, value }));
+  const uktData = Object.entries(statistics.perJenisUKT).map(([name, value]) => ({ name, value }));
+
   return (
     <div className="p-8 space-y-6">
       <div>
@@ -57,7 +95,7 @@ export function Beranda({ username }: BerandaProps) {
       </div>
 
       {/* Total Mahasiswa */}
-      <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+      <Card className="bg-gradient-to-b from-blue-600 to-blue-700 text-white">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -79,14 +117,28 @@ export function Beranda({ username }: BerandaProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {Object.entries(statistics.perTahun).map(([tahun, jumlah]) => (
-                <div key={tahun} className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{tahun}</span>
-                  <span className="font-semibold">{jumlah} mahasiswa</span>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  activeIndex={activeTahun}
+                  activeShape={renderActiveShape}
+                  data={tahunData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  dataKey="value"
+                  onMouseEnter={(_, index) => setActiveTahun(index)}
+                  onMouseLeave={() => setActiveTahun(undefined)}
+                >
+                  {tahunData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS.tahun[index % COLORS.tahun.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
@@ -99,54 +151,28 @@ export function Beranda({ username }: BerandaProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {Object.entries(statistics.perJalurMasuk).map(([jalur, jumlah]) => (
-                <div key={jalur} className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{jalur}</span>
-                  <span className="font-semibold">{jumlah} mahasiswa</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Per Jurusan */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Building2 className="mr-2 h-5 w-5" />
-              Per Jurusan
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {Object.entries(statistics.perJurusan).map(([jurusan, jumlah]) => (
-                <div key={jurusan} className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{jurusan}</span>
-                  <span className="font-semibold">{jumlah} mahasiswa</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Per Program Studi */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <GraduationCap className="mr-2 h-5 w-5" />
-              Per Program Studi
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {Object.entries(statistics.perProdi).map(([prodi, jumlah]) => (
-                <div key={prodi} className="flex justify-between items-center">
-                  <span className="text-muted-foreground text-sm">{prodi}</span>
-                  <span className="font-semibold">{jumlah}</span>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  activeIndex={activeJalur}
+                  activeShape={renderActiveShape}
+                  data={jalurData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  dataKey="value"
+                  onMouseEnter={(_, index) => setActiveJalur(index)}
+                  onMouseLeave={() => setActiveJalur(undefined)}
+                >
+                  {jalurData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS.jalur[index % COLORS.jalur.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
@@ -155,19 +181,33 @@ export function Beranda({ username }: BerandaProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <DollarSign className="mr-2 h-5 w-5" />
+            <span className="mr-2 text-lg font-semibold">Rp</span>
             Per Jenis UKT
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-5 gap-4">
-            {Object.entries(statistics.perJenisUKT).map(([jenis, jumlah]) => (
-              <div key={jenis} className="text-center p-4 bg-muted rounded-lg">
-                <p className="text-2xl font-bold">{jumlah}</p>
-                <p className="text-sm text-muted-foreground mt-1">{jenis}</p>
-              </div>
-            ))}
-          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                activeIndex={activeUKT}
+                activeShape={renderActiveShape}
+                data={uktData}
+                cx="50%"
+                cy="50%"
+                innerRadius={80}
+                outerRadius={100}
+                dataKey="value"
+                onMouseEnter={(_, index) => setActiveUKT(index)}
+                onMouseLeave={() => setActiveUKT(undefined)}
+              >
+                {uktData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS.ukt[index % COLORS.ukt.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
     </div>

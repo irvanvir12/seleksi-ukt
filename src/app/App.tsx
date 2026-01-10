@@ -60,14 +60,14 @@ export default function App() {
   }
 
   return (
-    <div className="flex size-full" style={{ background: 'rgb(6 78 59)' }}>
+    <div className="flex size-full bg-white">
       <Sidebar
         currentPage={currentPage}
         onNavigate={handleNavigate}
         onLogout={handleLogout}
         username={username}
       />
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto bg-blue-50">
         {showDetailForm ? (
           <div className="p-8">
             <ProfileForm onBack={handleBackToList} selectedNIM={selectedNIM} />
