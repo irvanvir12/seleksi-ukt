@@ -13,6 +13,9 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState("beranda");
   const [selectedNIM, setSelectedNIM] = useState<string | null>(null);
   const [showDetailForm, setShowDetailForm] = useState(false);
+  
+  // Track verification status per student
+  const [verifiedStudents, setVerifiedStudents] = useState<Record<string, boolean>>({});
 
   const handleLogin = (user: string) => {
     setIsAuthenticated(true);
@@ -49,6 +52,18 @@ export default function App() {
     setShowDetailForm(false);
     setSelectedNIM(null);
   };
+  
+  const handleVerificationComplete = (nim: string) => {
+    // Mark student as verified
+    setVerifiedStudents(prev => ({
+      ...prev,
+      [nim]: true
+    }));
+    // Go back to student list
+    setShowDetailForm(false);
+    setCurrentPage("verifikasi");
+    setSelectedNIM(null);
+  };
 
   if (!isAuthenticated) {
     return (
@@ -70,7 +85,7 @@ export default function App() {
       <div className="flex-1 overflow-auto bg-blue-50">
         {showDetailForm ? (
           <div className="p-8">
-            <ProfileForm onBack={handleBackToList} selectedNIM={selectedNIM} />
+            <ProfileForm onBack={handleBackToList} selectedNIM={selectedNIM} onVerificationComplete={handleVerificationComplete} />
           </div>
         ) : (
           <>
@@ -80,6 +95,7 @@ export default function App() {
                 <StudentList
                   onViewStudent={handleViewStudent}
                   onVerifyStudent={handleVerifyStudent}
+                  verifiedStudents={verifiedStudents}
                 />
               </div>
             )}

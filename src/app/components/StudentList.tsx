@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 interface Student {
@@ -23,7 +23,7 @@ interface Student {
   ukt: string;
 }
 
-// Mock data
+// Mock data - Initial data has empty UKT for unverified students
 const mockStudents: Student[] = [
   {
     nim: "2024001",
@@ -32,8 +32,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "SNBP",
     jurusan: "Teknik",
     programStudi: "Teknik Informatika",
-    jenisUKT: "UKT 4",
-    ukt: "Rp 5.000.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2024002",
@@ -42,8 +42,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "SNBT",
     jurusan: "Teknik",
     programStudi: "Sistem Informasi",
-    jenisUKT: "UKT 3",
-    ukt: "Rp 3.500.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2024003",
@@ -52,8 +52,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "Mandiri",
     jurusan: "Teknik",
     programStudi: "Teknik Elektro",
-    jenisUKT: "UKT 5",
-    ukt: "Rp 7.000.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2024004",
@@ -62,8 +62,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "SNBP",
     jurusan: "Ekonomi",
     programStudi: "Akuntansi",
-    jenisUKT: "UKT 2",
-    ukt: "Rp 2.500.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2024005",
@@ -72,8 +72,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "SNBT",
     jurusan: "Ekonomi",
     programStudi: "Manajemen",
-    jenisUKT: "UKT 4",
-    ukt: "Rp 5.000.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2024006",
@@ -82,8 +82,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "KIP",
     jurusan: "Psikologi",
     programStudi: "Psikologi",
-    jenisUKT: "UKT 3",
-    ukt: "Rp 3.500.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2023007",
@@ -92,8 +92,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "Mandiri",
     jurusan: "Teknik",
     programStudi: "Teknik Sipil",
-    jenisUKT: "UKT 5",
-    ukt: "Rp 7.000.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2023008",
@@ -102,8 +102,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "SNBP",
     jurusan: "Ilmu Sosial",
     programStudi: "Ilmu Komunikasi",
-    jenisUKT: "UKT 2",
-    ukt: "Rp 2.500.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2023009",
@@ -112,8 +112,8 @@ const mockStudents: Student[] = [
     jalurMasuk: "SNBT",
     jurusan: "Teknik",
     programStudi: "Teknik Mesin",
-    jenisUKT: "UKT 4",
-    ukt: "Rp 5.000.000"
+    jenisUKT: "-",
+    ukt: "-"
   },
   {
     nim: "2023010",
@@ -122,23 +122,28 @@ const mockStudents: Student[] = [
     jalurMasuk: "KIP",
     jurusan: "Farmasi",
     programStudi: "Farmasi",
-    jenisUKT: "UKT 6",
-    ukt: "Rp 9.000.000"
+    jenisUKT: "-",
+    ukt: "-"
   }
 ];
 
 interface StudentListProps {
   onViewStudent: (nim: string) => void;
   onVerifyStudent: (nim: string) => void;
+  verifiedStudents: Record<string, boolean>;
 }
 
-export function StudentList({ onViewStudent, onVerifyStudent }: StudentListProps) {
+export function StudentList({ onViewStudent, onVerifyStudent, verifiedStudents }: StudentListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTahunAngkatan, setFilterTahunAngkatan] = useState("all");
   const [filterJalurMasuk, setFilterJalurMasuk] = useState("all");
   const [filterJurusan, setFilterJurusan] = useState("all");
   const [filterProgramStudi, setFilterProgramStudi] = useState("all");
   const [filterJenisUKT, setFilterJenisUKT] = useState("all");
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   // Get unique values for filters
   const tahunAngkatanOptions = Array.from(new Set(mockStudents.map(s => s.tahunAngkatan))).sort().reverse();
@@ -161,6 +166,22 @@ export function StudentList({ onViewStudent, onVerifyStudent }: StudentListProps
 
     return matchesSearch && matchesTahunAngkatan && matchesJalurMasuk && matchesJurusan && matchesProgramStudi && matchesJenisUKT;
   });
+
+  // Pagination logic
+  const indexOfLastStudent = currentPage * rowsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - rowsPerPage;
+  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
+
+  const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleRowsPerPageChange = (value: string) => {
+    setRowsPerPage(Number(value));
+    setCurrentPage(1); // Reset to first page when changing rows per page
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto">
@@ -264,6 +285,27 @@ export function StudentList({ onViewStudent, onVerifyStudent }: StudentListProps
             </div>
           </div>
 
+          {/* Rows per page selector */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm">Tampilkan</Label>
+              <Select value={String(rowsPerPage)} onValueChange={handleRowsPerPageChange}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label className="text-sm">baris</Label>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Menampilkan {indexOfFirstStudent + 1} - {Math.min(indexOfLastStudent, filteredStudents.length)} dari {filteredStudents.length} data
+            </div>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -280,39 +322,78 @@ export function StudentList({ onViewStudent, onVerifyStudent }: StudentListProps
                 </tr>
               </thead>
               <tbody>
-                {filteredStudents.map((student, index) => (
-                  <tr
-                    key={student.nim}
-                    className={index % 2 === 0 ? "bg-muted/50" : ""}
-                  >
-                    <td className="p-3">{index + 1}</td>
-                    <td className="p-3">{student.nim}</td>
-                    <td className="p-3">{student.name}</td>
-                    <td className="p-3">{student.jalurMasuk}</td>
-                    <td className="p-3">{student.jurusan}</td>
-                    <td className="p-3">{student.programStudi}</td>
-                    <td className="p-3">{student.jenisUKT}</td>
-                    <td className="p-3">{student.ukt}</td>
-                    <td className="p-3">
-                      <Button
-                        size="sm"
-                        onClick={() => onViewStudent(student.nim)}
-                      >
-                        Lihat
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => onVerifyStudent(student.nim)}
-                        className="ml-2"
-                        variant="default"
-                      >
-                        Verifikasi
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {currentStudents.map((student, index) => {
+                  const isVerified = verifiedStudents[student.nim] || false;
+                  const displayJenisUKT = isVerified ? "UKT 4" : student.jenisUKT;
+                  const displayUKT = isVerified ? "Rp 5.000.000" : student.ukt;
+                  const actualIndex = indexOfFirstStudent + index;
+                  
+                  return (
+                    <tr
+                      key={student.nim}
+                      className={index % 2 === 0 ? "bg-muted/50" : ""}
+                    >
+                      <td className="p-3">{actualIndex + 1}</td>
+                      <td className="p-3">{student.nim}</td>
+                      <td className="p-3">{student.name}</td>
+                      <td className="p-3">{student.jalurMasuk}</td>
+                      <td className="p-3">{student.jurusan}</td>
+                      <td className="p-3">{student.programStudi}</td>
+                      <td className="p-3">{displayJenisUKT}</td>
+                      <td className="p-3">{displayUKT}</td>
+                      <td className="p-3">
+                        <Button
+                          size="sm"
+                          onClick={() => onVerifyStudent(student.nim)}
+                        >
+                          Lihat
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled
+                          className={`ml-2 ${
+                            isVerified 
+                              ? 'bg-blue-500 text-black hover:bg-blue-500 cursor-default' 
+                              : 'cursor-default'
+                          }`}
+                          variant={isVerified ? "default" : "secondary"}
+                        >
+                          {isVerified ? "Sudah Penetapan UKT" : "Belum Verifikasi"}
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between mt-4">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Sebelumnya
+            </Button>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Halaman</span>
+              <span className="text-sm font-medium">{currentPage}</span>
+              <span className="text-sm text-muted-foreground">dari</span>
+              <span className="text-sm font-medium">{totalPages}</span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Berikutnya
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
         </CardContent>
       </Card>

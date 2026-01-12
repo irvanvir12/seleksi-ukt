@@ -21,7 +21,7 @@ export function Login({ onLogin }: LoginProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     const user = DUMMY_USERS.find(
       (u) => u.username === username && u.password === password
     );
